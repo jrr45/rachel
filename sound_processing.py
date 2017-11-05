@@ -112,8 +112,8 @@ def run_rachel(sound_processor, detector, produce_sound, parsed,
         #starts the audio listener
         data = sound_processor.audio_signal_listener(record_seconds)
 
-        print 'calculating the detection time ... '
+        print('calculating the detection time ... ')
         time_of_detection = detector.get_detection_time(data)
-        print 'detection time =', time_of_detection
+        print('detection time =', time_of_detection)
 
     return time_of_detection

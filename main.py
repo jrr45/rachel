@@ -1,7 +1,7 @@
 import sound_processing as sp
 import numpy as np
-import ConfigParser
-import os
+#import ConfigParser
+from multiprocessing import Process
 
 import pyaudio as pa
 import wave
@@ -15,24 +15,24 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--server_address', type=str, nargs='2',
-                   help='address of the werbserver')
+    parser.add_argument('--server_address', metavar=('address', 'port'), type=str,
+                        nargs=2, help='address of the werbserver')
     args = parser.parse_args()
     
     isserver = False
-    serverhost = "localhoar"
+    serverhost = "localhost"
     serverport = 9999
     if args.server_address:
         isserver = True
         serverhost = args.server_address[0]
         serverport = args.server_address[1]
     
-    config = ConfigParser.ConfigParser()
-    config.readfp(open('global.ini'))
+    #config = ConfigParser.ConfigParser()
+    #config.readfp(open('global.ini'))
 
-    RATE = config.getint('global', 'BITRATE')
-    CHUNKSIZE = config.getint('global', 'CHUNKSIZE')
-    CHANNELS = config.getint('global', 'CHANNELS')
+    RATE = 3000#config.getint('global', 'BITRATE')
+    CHUNKSIZE = 1000#config.getint('global', 'CHUNKSIZE')
+    CHANNELS = 3000#config.getint('global', 'CHANNELS')
 
     BUFFER_TIME = 2 #maybe make this a command line arg
     GAIN = 1000
@@ -66,10 +66,10 @@ def main():
     detector.make_template(chirp_params, mode='linear_chirp')
 
     if (isserver):
-        newRef=os.fork()
-        if newRef==0:
-            server.start_server()
-            input('Press Enter to start calling: ')
+        p = Process(target=server.start_server)
+        p.start()
+        p.join()
+        input('Press Enter to start calling: ')
             
     client.start_client(serverhost, int(serverport), start=isserver)
 
