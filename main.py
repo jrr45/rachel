@@ -68,11 +68,12 @@ def main():
     detector.make_template(chirp_params, mode='linear_chirp')
 
     if (isserver):
+        print("starting server")
         p = Process(target=server.start_server)
         p.start()
         p.join()
+        time.sleep(1)
         input('Press Enter to start calling: ')
-            
     client.start_client(serverhost, int(serverport), start=isserver)
 
 if __name__ == '__main__':

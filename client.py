@@ -6,7 +6,7 @@ import json
 #SERVERHOST, SERVERPORT = "localhost", 9998
 
 class Client():
-    def __init__(self, serverhost="localhost", serverport=999):
+    def __init__(self, serverhost, serverport):
         self.registered = False
         self.server_address = ()
         self.SERVERHOST = serverhost
@@ -20,7 +20,9 @@ class Client():
     
     def beginlistening(self, start=False):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+  
             sock.connect((self.SERVERHOST, self.SERVERPORT))
+            print(start)
             
             # begin calling
             if (start):
@@ -60,5 +62,5 @@ class Client():
                     print("Received: {}".format(self.data))
             
 def start_client(serverhost="localhost", serverport=9999, start=False):
-    client = Client(serverhost="localhost", serverport=999)
-    client.beginlistening(start=False)
+    client = Client(serverhost=serverhost, serverport=serverport)
+    client.beginlistening(start=start)
