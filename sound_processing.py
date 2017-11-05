@@ -23,7 +23,7 @@ def plot_corr(data, template, corr):
 
     plt.show()
 
-def make_linear_sine_chirp(f1, f2, rate, nframes):
+def make_linear_sine_chirp(f1, f2, rate, nframes, gain):
     """ make chirp linear in frequency starting
         at f1 and ending at f2 """
     n = np.arange(nframes)
@@ -32,22 +32,21 @@ def make_linear_sine_chirp(f1, f2, rate, nframes):
     return gain*np.sin(wc*n)
 
 class SoundDetector(object):
-    
     """ detector makes and stores templates
-        for match filtering them against incoming data"""
-
-    def __init__(self, rate, win_type='hamming'):
+        for match filtering against the incoming data"""
+    def __init__(self, rate, win_type='hann'):
         self.rate = rate
         self.win_type = win_type
 
     def make_template(self, params, mode='linear_chirp'):
+        #params should be a dict
         if mode == 'linear_chirp':
             f1 = params['f1']
             f2 = params['f2']
             T = params['T']
             gain = params['gain']
             nframes = int(T*rate)
-            template = make_linear_sine_chirp(f1, f2, rate, nframes)
+            template = make_linear_sine_chirp(f1, f2, rate, nframes, gain)
             win = signal.get_window(self.win_type, nframes)
         else:
             raise Exception('Wrong input. Mode has to be "linear_chirp".')
@@ -77,7 +76,7 @@ if __name__ == '__main__':
     noise = 1000*np.random.random(nframes)
     data = np.zeros(nframes)
     pp = 200
-    data[pad_size-pp:-pad_size-pp] = make_linear_sine_chirp(f1, f2, rate, chirp_nframes)
+    data[pad_size-pp:-pad_size-pp] = make_linear_sine_chirp(f1, f2, rate, chirp_nframes, gain)
     #data[pad_size:-pad_size] = gain*np.sin(w0*np.arange(chirp_nframes))
     data += noise
 
