@@ -31,6 +31,33 @@ def make_linear_sine_chirp(f1, f2, rate, nframes, gain):
     wc = 2*np.pi*(f1+fa*n)/float(rate)
     return gain*np.sin(wc*n)
 
+def audio_signal_listener(RECORD_SECONDS,RATE=44100,CHUNKSIZE=1024,CHANNELS=2):
+
+    FORMAT=pyaudio.paInt16
+
+    # initialize portaudio
+    p = pyaudio.PyAudio()
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNKSIZE)
+
+    frames = [] # A python-list of chunks(np.ndarray)
+    for _ in range(0, int(RATE / CHUNKSIZE * RECORD_SECONDS)):
+        data = stream.read(CHUNKSIZE)
+        frames.append(np.fromstring(data, dtype=np.int16))
+
+    #Convert the list of numpy-arrays into a 1D array (column-wise)
+    numpydata = np.hstack(frames)
+
+    # close stream
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    return numpydata
+
 class SoundDetector(object):
     """ detector makes and stores templates
         for match filtering against the incoming data"""
