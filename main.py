@@ -11,7 +11,7 @@ def main():
     config = ConfigParser.ConfigParser()
     config.readfp(open('global.ini'))
 
-    RATE = 4000#config.getint('global', 'BITRATE')
+    RATE = config.getint('global', 'BITRATE')
     CHUNKSIZE = config.getint('global', 'CHUNKSIZE')
     CHANNELS = config.getint('global', 'CHANNELS')
 
@@ -47,11 +47,9 @@ def main():
     detector.make_template(chirp_params, mode='linear_chirp')
 
     while network_is_active:
-        time_of_detection = sp.run_rachel(sound_processor, detector, 
-                                          produce_sound, parsed, RATE, 
-                                                                 GAIN, 
-                                                                 BUFFER_TIME)
-        time.sleep(2)
+        time_of_detection = sp.run_rachel(sound_processor, detector, produce_sound, 
+                                                    parsed, RATE, GAIN, BUFFER_TIME)
+        time.sleep(1)
         print time_of_detection
 
 if __name__ == '__main__':

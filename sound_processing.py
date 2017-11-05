@@ -62,9 +62,10 @@ class SoundProcessor(object):
         else:
             raise Exception('data_format has to be pyaudios paInt16')
 
+        self.p = pyaudio.PyAudio()
+
     def audio_signal_listener(self, record_seconds):
-        p = pyaudio.PyAudio()
-        lstream = p.open(format=self.data_format,
+        lstream = self.p.open(format=self.data_format,
                               channels=self.channels,
                               rate=self.rate,
                               input=True,
@@ -81,13 +82,12 @@ class SoundProcessor(object):
         # close stream
         lstream.stop_stream()
         lstream.close()
-        p.terminate()
+        #p.terminate()
 
         return numpydata
 
     def audio_signal_player(self, data):
-        p = pyaudio.PyAudio()
-        rstream = p.open(format=self.data_format,
+        rstream = self.p.open(format=self.data_format,
                          channels=self.channels,
                          rate=self.rate,
                          output=True)
@@ -96,8 +96,7 @@ class SoundProcessor(object):
 
         rstream.stop_stream()
         rstream.close()
-
-        p.terminate()
+        #p.terminate()
 
 class SoundDetector(object):
     """ detector makes and stores templates
