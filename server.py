@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import socketserver
 import json
 import queue
@@ -15,7 +17,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     client_to_send = ("", 0)
     signal_sent = False
     signal_queue = queue.Queue()
-    signal_time = time.Time()
+    signal_time = time.time()
     signals_recieved = set()
     
     def send_signal(self):
