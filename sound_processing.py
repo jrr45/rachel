@@ -16,7 +16,7 @@ def make_linear_sine_chirp(f1, f2, rate, nframes, gain):
     wc = 2*np.pi*(f1+fa*n)/float(rate)
     return gain*np.sin(wc*n)
 
-def audio_signal_listener(RECORD_SECONDS,RATE=44100,CHUNKSIZE=1024,CHANNELS=2):
+def audio_signal_listener(record_seconds,RATE=44100,CHUNKSIZE=1024,CHANNELS=2):
 
     FORMAT=pyaudio.paInt16
 
@@ -29,7 +29,7 @@ def audio_signal_listener(RECORD_SECONDS,RATE=44100,CHUNKSIZE=1024,CHANNELS=2):
                     frames_per_buffer=CHUNKSIZE)
 
     frames = [] # A python-list of chunks(np.ndarray)
-    for _ in range(0, int(RATE / CHUNKSIZE * RECORD_SECONDS)):
+    for _ in range(0, int(RATE / CHUNKSIZE * record_seconds)):
         data = stream.read(CHUNKSIZE)
         frames.append(np.fromstring(data, dtype=np.int16))
 
