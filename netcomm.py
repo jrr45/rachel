@@ -36,7 +36,7 @@ class MulticastListener(DatagramProtocol):
     #Run when data comes in
     def datagramReceived(self, datagram, address):
         #For now, just print
-        print("Got data from {} at local time: \n{}".format(address, bytes(time())))
+        print("Got data from {} at local time: \n{}".format(address, repr(time())))
         print("Data: {}".format(datagram))
         print("-"*40)
 #        #eventually, decide:
@@ -55,4 +55,4 @@ if sys.argv[-1] == '-s':
 elif sys.argv[-1] == '-c':
     print("Starting sender")
     sender = reactor.listenUDP(0, MulticastSender())
-    sender.write(bytes(time()),MULTICAST_ADDR)
+    sender.write(repr(time()).encode(),MULTICAST_ADDR)
