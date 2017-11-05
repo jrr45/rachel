@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 """
 Created on Sat Nov  4 15:37:07 2017
 
@@ -29,9 +28,16 @@ import sys
 
 class MulticastListener(DatagramProtocol):
     def startProtocol(self):
-        print('Started Listening')
 
+        self.transport.setTTL(5)
         self.transport.joinGroup(MULTICAST_ADDR[0])
+
+        print('Announcing start')
+        msg = "Came online at: {}".format(repr(time()))
+        
+        self.transport.write(msg.encode(), MULTICAST_ADDR)
+
+        print('Started Listener')
 
     #Run when data comes in
     def datagramReceived(self, datagram, address):
@@ -43,7 +49,10 @@ class MulticastListener(DatagramProtocol):
          # see if this is an "I will send" message or an "I received" message
          # process that data
          
-class MulticastSender(DatagramProtocol):
+class MulticastSender(DatagramProtocol):  
+    def startProtocol(self):
+        self.transport.setTTL(5)
+
     pass
 
 
@@ -53,6 +62,7 @@ if sys.argv[-1] == '-s':
     reactor.run()
 
 elif sys.argv[-1] == '-c':
+    assert(0)
     print("Starting sender")
     sender = reactor.listenUDP(0, MulticastSender())
     sender.write(repr(time()).encode(),MULTICAST_ADDR)
