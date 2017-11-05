@@ -24,6 +24,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.client_to_send = self.signal_queue.get(block=False)
         self.signal_sent = False
         self.signals_recieved = set()
+        self.request.sendto(json.dumps({'command' : 'want_you_to_send'}), self.client_to_send)
 
     def handle(self):
         # self.request is the TCP socket connected to the client
@@ -34,7 +35,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         if(parsed_json['request'] == "register"):
             self.client_list.add(self.client_address)
             self.signal_queue(self.client_address)
-            self.request.sendto(json.dumps({'command' : 'registered'}), self.client_to_send)
+            self.request.sendto(json.dumps({'command' : 'registered'}), self.client_address)
             
         if(parsed_json['request'] == "start"):
             self.send_signal()
@@ -42,7 +43,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         if(parsed_json['request'] == "ready_to_send"):
             if (self.client_address == self.client_to_send):
                 self.signals_recieved = set()
-                self.request.sendto(json.dumps({'command' : 'send'}), self.client_to_send)
+                self.request.sendto(json.dumps({'command' : 'send_signal'}), self.client_to_send)
                 
         if(parsed_json['request'] == "signal_sent"):
             self.signal_sent = True
@@ -57,7 +58,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         else:
         # just send back the same data with error
             self.request.sendto({'command' : 'invalid_request', 
-                                 'request' : parsed_json['request']}, self.client_to_send)
+                                 'request' : parsed_json['request']}, self.client_address)
     
     def process_times(self):
         print(self.signal_time)
