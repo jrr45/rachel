@@ -1,57 +1,62 @@
-import socketserver
+import socket
 import json
 
-SERVERHOST, SERVERPORT = "localhost", 9998
+#SERVERHOST, SERVERPORT = "localhost", 9998
 
-class MyTCPHandler(socketserver.BaseRequestHandler):
-    registered = False
-    server_address = ()
+class Client():
+    def __init__(self, serverhost="localhost", serverport=999):
+        self.registered = False
+        self.server_address = ()
+        self.SERVERHOST = serverhost
+        self.SERVERPORT = serverport
     
-    def play_sound():
+    def play_sound(self):
         pass
     
-    def wait_for_signal():
+    def wait_for_signal(self):
         pass
     
-    def handle(self):
-        self.data = self.request.recv(1024).strip()
-        print("{} wrote:".format(self.client_address[0]))
-        
-        parsed_json = json.load(self.data)
-        
-        if(parsed_json['command'] == "want_you_to_send"):
-            if (not self.registered):
-                self.finish()
-                return
-            self.request.sendto(json.dumps({'request' : 'ready_to_send'}), self.client_to_send)
+    def beginlistening(self, start=False):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.connect((self.SERVERHOST, self.SERVERPORT))
             
-        if(parsed_json['command'] == "send_signal"):
-            if (not self.registered):
-                self.finish()
-                return
-            time_sent = self.play_sound()
-            self.request.sendto(json.dumps({'request' : 'signal_sent',
-                                            'time_sent' : time_sent}), self.client_to_send)
+            # begin calling
+            if (start):
+                sock.sendall(json.dumps({'request' : 'start'}))
             
-        if(parsed_json['command'] == "wait_for_signal"):
-            if (not self.registered):
-                self.finish()
-                return
-            time_recieved = wait_for_signal()
-            self.request.sendto(json.dumps({'request' : 'signal_recieved',
-                                            'time_recieved' : time_recieved}), self.client_to_send)
+            while(True):
+                received = str(sock.recv(1024), "utf-8")
+                print("{} wrote:".format(self.client_address[0]))
+                
+                parsed_json = json.load(received)
+                
+                if(parsed_json['command'] == "want_you_to_send"):
+                    if (not self.registered):
+                        self.finish()
+                        return
+                    sock.sendall(json.dumps({'request' : 'ready_to_send'}))
+                    
+                if(parsed_json['command'] == "send_signal"):
+                    if (not self.registered):
+                        self.finish()
+                        return
+                    time_sent = self.play_sound()
+                    sock.sendall(json.dumps({'request' : 'signal_sent',
+                                                    'time_sent' : time_sent}))
+                    
+                if(parsed_json['command'] == "wait_for_signal"):
+                    if (not self.registered):
+                        self.finish()
+                        return
+                    time_recieved = self.wait_for_signal()
+                    sock.sendall(json.dumps({'request' : 'signal_recieved',
+                                                'time_recieved' : time_recieved}))
+                
+                if(parsed_json['command'] == "registered"):
+                    self.registered = True
+                else:
+                    print("Received: {}".format(self.data))
             
-        if(parsed_json['command'] == "registered"):
-            self.registered = True
-        else:
-            print("Received: {}".format(self.data))
-            
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 9998
-
-    # Create the server, binding to localhost on port 9999
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
-        
-        server.serve_forever()
+def start_client(serverhost="localhost", serverport=9999, start=False):
+    client = Client(serverhost="localhost", serverport=999)
+    client.beginlistening(start=False)

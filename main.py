@@ -1,13 +1,32 @@
 import sound_processing as sp
 import numpy as np
 import ConfigParser
+import os
 
 import pyaudio as pa
 import wave
 import struct
 import time
 
+import server
+import client
+
+import argparse
+
 def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--server_address', type=str, nargs='2',
+                   help='address of the werbserver')
+    args = parser.parse_args()
+    
+    isserver = False
+    serverhost = "localhoar"
+    serverport = 9999
+    if args.server_address:
+        isserver = True
+        serverhost = args.server_address[0]
+        serverport = args.server_address[1]
+    
     config = ConfigParser.ConfigParser()
     config.readfp(open('global.ini'))
 
@@ -46,11 +65,13 @@ def main():
     detector = sp.SoundDetector(RATE, win_type='hann')
     detector.make_template(chirp_params, mode='linear_chirp')
 
-    while network_is_active:
-        time_of_detection = sp.run_rachel(sound_processor, detector, produce_sound, 
-                                                    parsed, RATE, GAIN, BUFFER_TIME)
-        time.sleep(1)
-        print time_of_detection
+    if (isserver):
+        newRef=os.fork()
+        if newRef==0:
+            server.start_server()
+            input('Press Enter to start calling: ')
+            
+    client.start_client(serverhost, int(serverport), start=isserver)
 
 if __name__ == '__main__':
     main()

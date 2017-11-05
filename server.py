@@ -64,11 +64,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print(self.signal_time)
         print(self.signals_recieved)
 
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 9999
 
+def start_server(serverhost="localhost", serverport=9999):
     # Create the server, binding to localhost on port 9999
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
+    with socketserver.TCPServer((serverhost, serverport), MyTCPHandler) as server:
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
         server.serve_forever()
